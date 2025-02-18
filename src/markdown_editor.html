@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Editor</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; height: 100vh; margin: 0; }
+        #editor-container, #preview-container {
+            width: 50%;
+            padding: 10px;
+            overflow: auto;
+            box-sizing: border-box;
+        }
+        #editor-container {
+            border-right: 1px solid #ccc;
+        }
+        #editor {
+            width: 100%;
+            height: 90%;
+            font-size: 16px;
+            padding: 10px;
+            box-sizing: border-box;
+            resize: none;
+        }
+    </style>
+    <script>
+        function updatePreview() {
+            let mdText = document.getElementById("editor").value;
+            document.getElementById("preview").innerHTML = marked.parse(mdText);
+        }
+
+        function saveMarkdown() {
+            let mdText = document.getElementById("editor").value;
+            let filename = prompt("保存するファイル名を入力（.mdを省略可）", "markdown_note");
+
+            if (!filename) {
+                alert("ファイル名が入力されていません。");
+                return;
+            }
+            if (!filename.endsWith(".md")) {
+                filename += ".md";
+            }
+
+            fetch("http://localhost:8000/save", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ filename: filename, content: mdText })
+            })
+            .then(response => response.text())
+            .then((message) => {
+                if (message.includes("❌")) {
+                    alert("保存に失敗しました: " + message);
+                } else {
+                    alert(`"${filename}" に保存しました！`);
+                }
+            })
+            .catch(error => alert("保存に失敗しました！\nエラー詳細: " + error));
+        }
+    </script>
+</head>
+<body>
+    <div id="editor-container">
+        <button onclick="saveMarkdown()">📝 保存</button>
+        <textarea id="editor" oninput="updatePreview()"># Markdown Editor
+
+## ✅ チェックボックス
+- [ ] 未完了のタスク
+- [x] 完了したタスク
+
+## 🔹 引用
+> これは引用のサンプルです。
+
+## 📌 コードブロック
+\`\`\`python
+print("Hello, Python!")
+\`\`\`
+
+        </textarea>
+    </div>
+    <div id="preview-container">
+        <div id="preview"></div>
+    </div>
+</body>
+</html>
