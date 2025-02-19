@@ -6,54 +6,21 @@
     <title>Markdown Editor</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; display: flex; height: 100vh; margin: 0; }
-        #editor-container, #preview-container {
-            width: 50%;
-            padding: 10px;
-            overflow: auto;
-            box-sizing: border-box;
-        }
-        #editor-container {
-            border-right: 1px solid #ccc;
-        }
-        #editor {
-            width: 100%;
-            height: 90%;
-            font-size: 16px;
-            padding: 10px;
-            box-sizing: border-box;
-            resize: none;
-        }
-        pre {
-            background: #f4f4f4;
-            padding: 10px;
-            border-radius: 5px;
-            overflow-x: auto;
-        }
-        blockquote {
-            border-left: 5px solid #ccc;
-            padding-left: 10px;
-            margin-left: 0;
-            color: #555;
-        }
+        body { font-family: Arial, sans-serif; display: flex; height: 100vh; margin: 0; background-color: #f8f8f8; color: #333; }
+        #editor-container, #preview-container { width: 50%; padding: 10px; overflow: auto; box-sizing: border-box; }
+        #editor-container { border-right: 1px solid #ccc; }
+        #editor { width: 100%; height: calc(100% - 50px); font-size: 16px; padding: 10px; box-sizing: border-box; resize: none; }
+        #toolbar { display: flex; justify-content: space-between; align-items: center; padding: 5px; background-color: #ddd; }
+        button { cursor: pointer; margin: 2px; padding: 5px 10px; }
+        #preview { white-space: pre-wrap; }
     </style>
 </head>
 <body>
     <div id="editor-container">
-        <button onclick="saveMarkdown()">保存</button>
-        <textarea id="editor"># Markdown Editor
-
-## チェックボックス
-- [ ] 未完了のタスク
-- [x] 完了したタスク
-
-## 引用
-> これは引用のサンプルです。
-
-## コードブロック
-```python
-print("Hello, Python!")
-```</textarea>
+        <div id="toolbar">
+            <button onclick="saveMarkdown()">保存</button>
+        </div>
+        <textarea id="editor"># Markdown Editor</textarea>
     </div>
     <div id="preview-container">
         <div id="preview"></div>
@@ -68,11 +35,11 @@ print("Hello, Python!")
 
             function updatePreview() {
                 console.log("プレビュー更新: ", editor.value);
-                preview.innerHTML = marked(editor.value);
+                preview.innerHTML = marked.parse(editor.value);
             }
 
             editor.addEventListener("input", updatePreview);
-            updatePreview(); // 初期表示
+            updatePreview();
 
             window.saveMarkdown = function() {
                 let mdText = editor.value;
@@ -86,21 +53,30 @@ print("Hello, Python!")
                     filename += ".md";
                 }
 
+                console.log("保存開始: ", filename, mdText);
+
                 fetch("http://localhost:8000/save", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ filename: filename, content: mdText })
                 })
                 .then(response => response.text())
-                .then((message) => {
-                    if (message.includes("書き込みエラー") || message.includes("値エラー")) {
-                        alert("保存に失敗しました: " + message);
-                    } else {
-                        alert(`"${filename}" に保存しました。`);
-                    }
+                .then(message => {
+                    console.log("保存成功: ", message);
+                    alert(`"${filename}" に保存しました。`);
                 })
-                .catch(error => alert("保存に失敗しました！\nエラー詳細: " + error));
+                .catch(error => {
+                    console.error("保存エラー: ", error);
+                    alert("保存に失敗しました！\nエラー詳細: " + error);
+                });
             };
+
+            document.addEventListener("keydown", function(event) {
+                if (event.ctrlKey && event.key === "s") {
+                    event.preventDefault();
+                    saveMarkdown();
+                }
+            });
         });
     </script>
 </body>
