@@ -12,13 +12,16 @@
         #editor { width: 100%; height: calc(100% - 50px); font-size: 16px; padding: 10px; box-sizing: border-box; resize: none; }
         #toolbar { display: flex; justify-content: space-between; align-items: center; padding: 5px; background-color: #ddd; }
         button { cursor: pointer; margin: 2px; padding: 5px 10px; }
+        #fileInput { display: none; } /* 非表示のファイル選択 */
         #preview { white-space: pre-wrap; }
     </style>
 </head>
 <body>
     <div id="editor-container">
         <div id="toolbar">
-            <button onclick="saveMarkdown()">保存</button>
+            <input type="file" id="fileInput" accept=".md" onchange="handleFileSelect(event)">
+            <button onclick="document.getElementById('fileInput').click();">Load</button>
+            <button onclick="saveMarkdown()">Save</button>
         </div>
         <textarea id="editor"># Markdown Editor</textarea>
     </div>
@@ -27,6 +30,8 @@
     </div>
 
     <script>
+        let currentFilename = null;
+
         document.addEventListener("DOMContentLoaded", function() {
             marked.setOptions({ gfm: true });
 
@@ -41,16 +46,36 @@
             editor.addEventListener("input", updatePreview);
             updatePreview();
 
+            // ファイルを選択して読み込む
+            window.handleFileSelect = function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                currentFilename = file.name; // 選択したファイル名を保存
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    editor.value = e.target.result;
+                    updatePreview();
+                    alert(`"${currentFilename}" を読み込みました。`);
+                };
+                reader.readAsText(file);
+            };
+
+            // Markdown保存
             window.saveMarkdown = function() {
                 let mdText = editor.value;
-                let filename = prompt("保存するファイル名を入力（.mdを省略可）", "markdown_note");
+                let filename = currentFilename;
 
                 if (!filename) {
-                    alert("ファイル名が入力されていません。");
-                    return;
-                }
-                if (!filename.endsWith(".md")) {
-                    filename += ".md";
+                    filename = prompt("保存するファイル名を入力（.mdを省略可）", "markdown_note");
+                    if (!filename) {
+                        alert("ファイル名が入力されていません。");
+                        return;
+                    }
+                    if (!filename.endsWith(".md")) {
+                        filename += ".md";
+                    }
+                    currentFilename = filename;
                 }
 
                 console.log("保存開始: ", filename, mdText);
