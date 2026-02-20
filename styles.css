@@ -1,0 +1,103 @@
+:root {
+  --bg: #0f1115;
+  --panel: #151923;
+  --text: #e6e6e6;
+  --muted: #a7b0c0;
+  --line: #2a3140;
+  --btn: #1e2533;
+  --btn2: #26314a;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans JP", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.toolbar-left, .toolbar-right { display: flex; align-items: center; gap: 8px; }
+.sep { width: 1px; height: 22px; background: var(--line); margin: 0 6px; }
+
+button {
+  background: var(--btn);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+button:hover { background: var(--btn2); }
+
+.chk { color: var(--muted); font-size: 14px; user-select: none; }
+.status { color: var(--muted); font-size: 13px; }
+
+.layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 0;
+}
+
+.pane {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--line);
+}
+.pane:last-child { border-right: none; }
+
+.pane-title {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+  background: #121620;
+  color: var(--muted);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dirty { opacity: 0; }
+.dirty.on { opacity: 1; color: #ffcc66; }
+
+#editor {
+  flex: 1;
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  padding: 12px;
+  background: #0f1115;
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.55;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Noto Sans Mono CJK JP", monospace;
+}
+
+.preview {
+  flex: 1;
+  overflow: auto;
+  padding: 12px 14px;
+  background: #0f1115;
+}
+
+/* preview styling */
+.preview h1, .preview h2, .preview h3 { border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+.preview code { background: #141a26; padding: 2px 5px; border-radius: 6px; }
+.preview pre { background: #141a26; padding: 10px; border-radius: 10px; overflow: auto; border: 1px solid var(--line); }
+.preview a { color: #7aa2f7; }
+.preview blockquote { border-left: 3px solid var(--line); padding-left: 10px; color: var(--muted); }
